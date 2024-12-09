@@ -1,5 +1,14 @@
-#TASK_NAME=SST-2
-TASK_NAME=RTE
+#!/bin/bash -l
+
+#SBATCH --chdir /home/jurcut/Charmer-mine/baseline/roben/scRNN
+#SBATCH --ntasks 1
+#SBATCH --cpus-per-task 1
+#SBATCH --mem 6G
+#SBATCH --time 1:00:00
+#SBATCH --gres gpu:1
+#SBATCH --qos gpu
+
+TASK_NAME=SST-2
 GLUE_DIR=data/glue_data
 TC_DIR=tc_data
 
