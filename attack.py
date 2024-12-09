@@ -42,7 +42,12 @@ if __name__ == '__main__':
 
     parser.add_argument('--llm_prompt_test', action = 'store_true', help='if true, then we test the accuracy of a particular prompt without doing attack')
     parser.add_argument('--llmselect', type = str, default = 'v1')
-    
+
+    parser.add_argument('--ensemble_method', type=str, default=None, help='ensemble method to use', choices=['vote', 'logit'])
+    parser.add_argument('--ensemble_nr_samples', type=int, default=10, help='number of samples to use for ensemble')
+    parser.add_argument('--ensemble_q', type=int, default=5, help='number of samples to use for ensemble')
+    parser.add_argument('--fill_mask', action='store_true', help='fill mask for ensemble')
+
     ############### argument for our method
     charmer_args = parser.add_argument_group('charmer')
     parser.add_argument('--k', type = int, default = 1, help='max edit distance or max number of characters to be modified') 
@@ -68,6 +73,11 @@ if __name__ == '__main__':
     '''
     Output folder and file definition
     '''
+    if args.ensemble_method is not None:
+        args.ensemble = True
+    else:
+        args.ensemble = False
+
     if ('llama' in args.model_name) or ('flan-t5' in args.model_name) or ('vicuna' in args.model_name):
         args.llm = True
         folder_name  = os.path.join('results_attack','llm_classifier',args.dataset,args.model_name.split('/')[1])
