@@ -25,18 +25,39 @@ fi
 
 model_path=./$model_name # Modify the epoch if needed
 dataset=$2
-result_path=results_attack/lm_classifier/basiclm/$dataset
+result_path=results_attack/lm_classifier/basiclm_attack_checker/$dataset
 
 defense=$3
 
-python attack.py \
-    --device cuda \
-    --loss margin \
-    --dataset $dataset \
-    --model $model_path \
-    --k 1 \
-    --n_positions 20 \
-    --select_pos_mode batch \
-    --size 1000 \
-    --pga 0 \
-    --checker ScRNN
+charmer_ending_path=_50iter_encoder_margin_pga0_batch20_1000.csv
+final_results_path=$model_name/results_$defense
+
+# Create the result path if it does not exist
+mkdir -p $final_results_path
+
+# Charmer attacks
+charmer_ks=(1 2 10)
+
+for k in ${charmer_ks[@]}; do
+    if [ -f "$final_results_path/charmer_$k.csv" ]; then
+        echo "Charmer $k already exists, skipping..."
+    else
+        python attack.py \
+            --device cuda \
+            --loss margin \
+            --dataset $dataset \
+            --model $model_path \
+            --k $k \
+            --n_positions 20 \
+            --select_pos_mode batch \
+            --size 1000 \
+            --pga 0
+
+        mv "$result_path/${model_name}_${k}${charmer_ending_path}" "$final_results_path/charmer_$k.csv"
+    fi
+done
+
+# Aggregate the results
+
+python cluster_scripts/evaluate.py \
+    --folder_path $final_results_path > $final_results_path/eval.out
