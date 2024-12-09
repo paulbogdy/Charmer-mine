@@ -51,7 +51,8 @@ for k in ${charmer_ks[@]}; do
             --n_positions 20 \
             --select_pos_mode batch \
             --size 1000 \
-            --pga 0
+            --pga 0 \
+            --checker $defense
 
         mv "$result_path/${model_name}_${k}${charmer_ending_path}" "$final_results_path/charmer_$k.csv"
     fi
