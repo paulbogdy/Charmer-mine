@@ -8,6 +8,8 @@
 #SBATCH --gres gpu:1
 #SBATCH --qos gpu
 
+source ~/venvs/mnlp/bin/activate
+
 TASK_NAME=SST-2
 GLUE_DIR=data/glue_data
 CLUSTERER_PATH=clusterers/vocab100000_ed1_gamma0.3.pkl

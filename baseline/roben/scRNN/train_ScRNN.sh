@@ -8,6 +8,8 @@
 #SBATCH --gres gpu:1
 #SBATCH --qos gpu
 
+source ~/venvs/mnlp/bin/activate
+
 TASK_NAME=SST-2
 GLUE_DIR=data/glue_data
 TC_DIR=tc_data
