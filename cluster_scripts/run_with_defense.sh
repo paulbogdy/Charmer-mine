@@ -58,6 +58,27 @@ for k in ${charmer_ks[@]}; do
     fi
 done
 
+# Other attacks
+other_attacks=(textfooler deepwordbug)
+
+for attack in ${other_attacks[@]}; do
+    if [ -f "$final_results_path/$attack.csv" ]; then
+        echo "$attack already exists, skipping..."
+    else
+        python attack.py \
+            --device cuda \
+            --loss margin \
+            --dataset $dataset \
+            --model $model_path \
+            --attack_name $attack \
+            --size 1000 \
+            --pga 0 \
+            --checker $defense
+
+        mv "$result_path/${attack}_${dataset}_${model_name}.csv" "$final_results_path/$attack.csv"
+    fi
+done
+
 # Aggregate the results
 
 python cluster_scripts/evaluate.py \
