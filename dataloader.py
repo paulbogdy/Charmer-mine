@@ -6,6 +6,40 @@ import datasets
 from transformers.data.metrics import glue_compute_metrics
 from transformers import DataCollatorWithPadding, PreTrainedTokenizer
 
+def load_train_dataset(dataset_name: str):
+    if dataset_name == 'sst':
+        dataset = datasets.load_dataset("glue", "sst2")
+        train_set = dataset['train']
+        return train_set
+    elif dataset_name == 'mnli':
+        dataset = datasets.load_dataset("glue", "mnli")
+        train_set = dataset['train']
+        return train_set
+    elif dataset_name == 'qnli':
+        dataset = datasets.load_dataset("glue", "qnli")
+        train_set = dataset['train']
+        train_set = train_set.rename_column("question", "premise")
+        train_set = train_set.rename_column("sentence", "hypothesis")
+        return train_set
+    elif dataset_name == 'rte':
+        dataset = datasets.load_dataset("glue", "rte")
+        train_set = dataset['train']
+        train_set = train_set.rename_column("sentence1", "premise")
+        train_set = train_set.rename_column("sentence2", "hypothesis")
+        return train_set
+    elif dataset_name == 'agnews':
+        dataset = datasets.load_dataset("ag_news")
+        train_set = dataset['train']
+        train_set = train_set.rename_column("text", 'sentence')
+        return train_set
+    elif dataset_name == 'rotten_tomatoes':
+        dataset = datasets.load_dataset("rotten_tomatoes")
+        train_set = dataset['train']
+        #train_set = train_set.rename_column("text", 'sentence')
+        return train_set
+    else:
+        raise NotImplementedError
+
 def load_attack_dataset(dataset_name: str):
     if dataset_name == 'sst':
         dataset = datasets.load_dataset("glue", "sst2")

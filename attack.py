@@ -3,7 +3,7 @@ import pandas as pd
 import tensorflow as tf
 import torch
 import tqdm
-from dataloader import load_attack_dataset, get_class_num
+from dataloader import load_attack_dataset, load_train_dataset, get_class_num
 from tqdm import tqdm
 import utils
 import os
@@ -39,6 +39,7 @@ if __name__ == '__main__':
     parser.add_argument("--resume", type = str, default = None, help = 'path of the file to continue feeding more samples')
     parser.add_argument("--sufix", type = str, default = '', help = 'sufix to the model folder')
 
+    parser.add_argument('--on_train', action = 'store_true', help='if true, then we attack on the training set')
 
     parser.add_argument('--llm_prompt_test', action = 'store_true', help='if true, then we test the accuracy of a particular prompt without doing attack')
     parser.add_argument('--llmselect', type = str, default = 'v1')
@@ -115,6 +116,8 @@ if __name__ == '__main__':
 
     ## Load Dataset
     attack_dataset = load_attack_dataset(args.dataset)
+    if args.on_train:
+        attack_dataset = load_train_dataset(args.dataset)
     num_classes = get_class_num(args.dataset)
     model_wrapper = utils.load_model(args)
     if args.llm:
