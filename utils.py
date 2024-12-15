@@ -568,6 +568,15 @@ def load_model(args):
     if args.llm:
         from utils_llm_inference import Inference
         model_wrapper = Inference(args)
+    elif args.ensemble:
+        from ensemble_wrapper import EnsembleModel
+        tokenizer = AutoTokenizer.from_pretrained(args.model_name)
+        model = AutoModelForSequenceClassification.from_pretrained(args.model_name,ignore_mismatched_sizes=True)
+        model = model.eval() #IMPORTANT eval
+        model = model.to(args.device)
+        if args.attack_name == 'charmer':
+            model = rename_model(model)
+        model_wrapper = EnsembleModel(model, tokenizer, ensemble_method=args.ensemble_method, num_samples=args.ensemble_nr_samples, mask_percentage=args.ensemble_q)
     else:
         import textattack
         tokenizer = AutoTokenizer.from_pretrained(args.model_name)
