@@ -1,3 +1,5 @@
+#!/bin/bash -l
+
 #SBATCH --chdir /home/jurcut/Charmer-mine
 #SBATCH --ntasks 1
 #SBATCH --cpus-per-task 1
