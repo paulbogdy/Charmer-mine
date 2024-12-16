@@ -571,6 +571,51 @@ class Charmer:
                     return list(torch.topk(losses,self.args.n_positions).indices)
                 else:
                     NotImplementedError
+        elif self.args.ensemble:
+            if self.args.select_pos_mode=='iterative':
+                with torch.no_grad():
+                    if constraints_loc is not None:
+                        subset_z_aux = []
+                        for i in range(len(constraints_loc)):
+                            if constraints_loc[i]:
+                                subset_z_aux.append(i)
+                        SS = utils.generate_all_sentences(S,[ord(' ')], subset_z_aux, 1, alternative=-1)
+                    else:
+                        SS = utils.generate_all_sentences(S,[ord(' ')], None,1, alternative=-1)
+
+                    pred = []
+
+                    for i in range(len(SS)//bs + 1):
+                        batch_texts = SS[i*bs:min((i+1)*bs, len(SS))]
+                        if not batch_texts:
+                            continue
+
+                        if self.premise is not None:
+                            batch_texts = [self.premise + ' ' + s for s in batch_texts]
+                        
+                        pred_batch = self.model_wrapper(batch_texts)
+                        pred.append(pred_batch)
+            elif self.args.select_pos_mode=='batch':
+                with torch.no_grad():
+                    if constraints_loc is not None:
+                        subset_z_aux = []
+                        for i in range(len(constraints_loc)):
+                            if constraints_loc[i]:
+                                subset_z_aux.append(i)
+                        SS = utils.generate_all_sentences(S,[ord(' ')], subset_z_aux, 1, alternative=-1)
+                    else:
+                        SS = utils.generate_all_sentences(S,[ord(' ')], None,1, alternative=-1)
+                    
+                    if self.premise is not None:
+                        SS = [self.premise + ' ' + s for s in SS]
+
+                    pred = self.model_wrapper(SS)
+                    loss = self.criterion(pred,label.repeat(pred.shape[0]))
+                    idxs = list(torch.topk(loss,min(self.args.n_positions,len(loss))).indices)
+                    if constraints_loc is not None:
+                        return [subset_z_aux[i] for i in idxs]
+                    else:
+                        return idxs
         else:
             if self.args.select_pos_mode=='iterative':
                 with torch.no_grad():
@@ -814,6 +859,18 @@ class Charmer:
                 for i in range(len(SS)//bs+ (len(SS)%bs>0)):
                     loss.append(self.get_llmloss_from_questions(criterion= self.criterion, questions = SS[i*bs: min((i+1)*bs, len(SS))]))
                 loss = torch.cat(loss, dim=0)
+                u = torch.zeros(len(SS))
+                u[torch.argmax(loss)] = 1
+            elif self.args.ensemble:
+                pred = []
+                for i in range(len(SS)//bs + 1):
+                    texts = SS[i*bs:min((i+1)*bs, len(SS))]
+                    if self.premise is not None:
+                        texts = [self.premise + ' ' + s for s in texts]
+                    pred.append(self.model_wrapper(texts))
+
+                pred = torch.cat(pred, dim=0)
+                loss = self.criterion(pred,label.repeat(pred.shape[0]))
                 u = torch.zeros(len(SS))
                 u[torch.argmax(loss)] = 1
             else:

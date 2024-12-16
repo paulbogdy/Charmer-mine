@@ -30,7 +30,11 @@ python attack.py \
         --loss margin \
         --dataset sst \
         --model $model_path \
-        --attack_name deepwordbug \
+        --attack_name charmer \
+        --k 1 \
+        --n_positions 20 \
+        --select_pos_mode batch \
+        --size 1000 \
         --ensemble_method logit \
         --ensemble_nr_samples 10 \
         --ensemble_q 5 \
