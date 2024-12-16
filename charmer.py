@@ -436,6 +436,9 @@ class Charmer:
         Get the locations where the loss is changed the most after introducing an space character.
         '''                
 
+        if self.args.ensemble:
+            bs //= self.args.ensemble_nr_samples
+
         if self.args.llm:
             if self.args.select_pos_mode =='iterative': raise NotImplementedError
             elif self.args.select_pos_mode =='batch_jailbreak':
@@ -847,6 +850,9 @@ class Charmer:
         llm: bool, whether use large language model, choices: True or False
         llmloss: str,  the type of loss, choices: 'ce', 'margin'
         '''
+
+        if self.args.ensemble:
+            bs //= self.args.ensemble_nr_samples
     
         with torch.no_grad():
             if SS is None:
@@ -893,6 +899,10 @@ class Charmer:
         return SS,u, None
     
     def attack_brute_force_random(self, S, label,bs = 1024):
+
+        if self.args.ensemble:
+            bs //= self.args.ensemble_nr_samples
+
         with torch.no_grad():
             SS = utils.generate_all_sentences(S,self.V,None,1)
             if bs==-1:
