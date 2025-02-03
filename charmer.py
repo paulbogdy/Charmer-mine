@@ -437,7 +437,7 @@ class Charmer:
         '''                
 
         if self.args.ensemble:
-            bs = 256
+            bs = 128
 
         if self.args.llm:
             if self.args.select_pos_mode =='iterative': raise NotImplementedError
@@ -852,7 +852,7 @@ class Charmer:
         '''
 
         if self.args.ensemble:
-            bs = 256
+            bs = 128
     
         with torch.no_grad():
             if SS is None:
@@ -901,7 +901,7 @@ class Charmer:
     def attack_brute_force_random(self, S, label,bs = 1024):
 
         if self.args.ensemble:
-            bs = 256
+            bs = 128
 
         with torch.no_grad():
             SS = utils.generate_all_sentences(S,self.V,None,1)
